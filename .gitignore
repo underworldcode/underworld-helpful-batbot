@@ -1,0 +1,56 @@
+# HelpfulBatBot local files - don't commit these
+
+# Environment variables (contains secrets!)
+.env
+
+# Runtime files
+bot.port
+bot.pid
+
+# Content cache (cloned repositories)
+content_cache/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# FAISS index (built at runtime)
+*.index
+*.faiss
+
+# Model cache (sentence-transformers downloads models here)
+.cache/
+models/
+
+# Logs
+*.log
+logs/
+nohup.out
+
+# Local testing
+test_output/
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+temp/

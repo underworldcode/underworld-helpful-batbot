@@ -1,0 +1,78 @@
+# Content Sources Configuration for HelpfulBatBot
+#
+# This file defines which repositories to index for the Q&A bot.
+# The bot will clone/update these repositories and index the specified files.
+
+content_sources:
+  # Primary source: Underworld3 main repository
+  - name: "underworld3"
+    type: "git"
+    url: "https://github.com/underworldcode/underworld3.git"
+    branch: "main"
+    local_path: "./content_cache/underworld3"
+
+    # How often to update content
+    # Options: "on_startup", "hourly", "daily", "never"
+    update_frequency: "daily"
+
+    # What to index from this repository
+    include_paths:
+      # Beginner tutorials
+      - "docs/beginner/tutorials/*.ipynb"
+      - "docs/beginner/tutorials/*.md"
+
+      # Example scripts
+      - "examples/*.ipynb"
+      - "examples/*.py"
+
+      # A/B grade tests (user-facing test examples)
+      - "tests/test_0[0-6]*.py"
+
+      # Main documentation
+      - "README.md"
+      - "CLAUDE.md"
+
+    # What NOT to index
+    exclude_paths:
+      # Source code internals
+      - "src/**/*"
+
+      # Developer documentation
+      - "docs/developer/**/*"
+
+      # Planning documents
+      - "planning/**/*"
+
+      # Build artifacts
+      - "build/**/*"
+      - "dist/**/*"
+      - "*.egg-info/**/*"
+
+      # Git and config
+      - ".git/**/*"
+      - ".github/**/*"
+      - ".pixi/**/*"
+
+      # Python cache
+      - "__pycache__/**/*"
+      - "*.pyc"
+
+    # Metadata
+    priority: 1.0  # Higher priority = ranked higher in search results
+    source_label: "Underworld3 Official Documentation"
+
+  # Future: Add more repositories here
+  #
+  # - name: "underworld3-documentation"
+  #   type: "git"
+  #   url: "https://github.com/underworldcode/underworld3-documentation.git"
+  #   branch: "main"
+  #   local_path: "./content_cache/underworld3-documentation"
+  #   update_frequency: "daily"
+  #   include_paths:
+  #     - "**/*.md"
+  #     - "**/*.ipynb"
+  #   exclude_paths:
+  #     - ".git/**/*"
+  #   priority: 0.9
+  #   source_label: "Extended Documentation"
