@@ -16,6 +16,11 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import anthropic  # Claude API
+import time  # For response timing
+
+# Interaction logging
+from interaction_logger import get_logger
+interaction_logger = get_logger("interactions")
 
 # Env vars (configure in your host)
 # BOT_REPO_PATH: local path to a checkout of your GitHub repo (kept updated via cron/CI)
@@ -405,6 +410,8 @@ def enforce_citations(answer_md: str, ctx: List[IndexedDoc]) -> Tuple[str, List[
 
 @app.post("/ask", response_model=BotResponse)
 def ask(q: Query):
+    start_time = time.time()
+
     ctx = retrieve(q.question, k=q.max_context_items)
     system_prompt = build_system_prompt()
     context_text = format_context(ctx)
@@ -416,6 +423,22 @@ def ask(q: Query):
     raw = call_llm_with_caching(system_prompt, user_prompt, context_text)
     answer, citations, used_files = enforce_citations(raw, ctx)
     confidence = 0.5 if "don't have" in answer or "Claude" in answer and "error" in answer else 0.8
+
+    # Calculate response time
+    response_time_ms = int((time.time() - start_time) * 1000)
+
+    # Log the interaction for training data
+    docs_used = [{"file": f, "doc_id": i, "score": None} for i, f in enumerate(used_files)]
+    interaction_id = interaction_logger.log_interaction(
+        question=q.question,
+        answer=answer,
+        docs_used=docs_used,
+        confidence=confidence,
+        response_time_ms=response_time_ms,
+        channel="api",
+        metadata={"citations": citations}
+    )
+
     return BotResponse(
         answer=answer, citations=citations, used_files=used_files, confidence=confidence
     )
@@ -431,6 +454,24 @@ def health_check():
         "embedding_model": MODEL_NAME,
         "claude_model": CLAUDE_MODEL
     }
+
+
+@app.get("/interactions/stats")
+def interaction_stats():
+    """Get statistics about logged interactions."""
+    return interaction_logger.get_stats()
+
+
+@app.get("/interactions/patterns")
+def question_patterns():
+    """Get analysis of common question patterns."""
+    return interaction_logger.get_question_patterns()
+
+
+@app.get("/interactions/recent")
+def recent_interactions(limit: int = 10):
+    """Get recent interactions for review."""
+    return interaction_logger.get_interactions(limit=limit)
 
 
 def find_available_port(start_port=8001, max_attempts=10):

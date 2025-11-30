@@ -35,6 +35,9 @@ models/
 logs/
 nohup.out
 
+# Interaction logs (training data - keep local, back up separately)
+interactions/
+
 # Local testing
 test_output/
 .pytest_cache/
